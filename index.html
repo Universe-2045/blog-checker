@@ -346,10 +346,11 @@ function rst(){
 
 </script>
 <script>
+// 기존에 등록된 서비스 워커 제거
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/blog-checker/sw.js')
-    .then(function(){console.log('SW registered')})
-    .catch(function(e){console.log('SW error', e)});
+  navigator.serviceWorker.getRegistrations().then(function(regs){
+    regs.forEach(function(r){r.unregister()});
+  });
 }
 </script>
 </body>
