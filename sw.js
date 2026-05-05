@@ -1,4 +1,4 @@
-var CACHE = 'blma-checker-v1';
+var CACHE = 'blma-checker-202605051423';
 var FILES = [
   '/blog-checker/',
   '/blog-checker/index.html',
