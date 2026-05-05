@@ -1,4 +1,4 @@
-[체커 열기](checker.html)
+[블로그 체커 열기](checker.html)
 
 1. 카카오톡 블마방 -> 대화 내보내기
 2. checker.html 웹에서 열기
