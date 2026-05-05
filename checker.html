@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>블로그 1일 1포 체커</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh;padding:2rem 1rem}
+.wrap{max-width:680px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin-bottom:1.75rem}
+.section{margin-bottom:1.25rem}
+.label{font-size:13px;color:#666;margin-bottom:5px;font-weight:500}
+.hint{font-size:12px;color:#aaa;margin-top:4px}
+.errmsg{font-size:13px;color:#993C1D;margin-top:6px}
+.fname{font-size:13px;color:#888;margin-top:6px}
+.row{display:flex;gap:12px}
+.row>div{flex:1}
+textarea,input[type=text],input[type=date]{width:100%;font-family:inherit;font-size:14px;background:#fff;color:#1a1a1a;border:1px solid #ddd;border-radius:8px;padding:9px 12px;resize:vertical}
+textarea:focus,input:focus{outline:none;border-color:#999}
+.drop{border:1.5px dashed #ccc;border-radius:12px;padding:2rem;text-align:center;cursor:pointer;color:#888;font-size:14px;background:#fafaf8;transition:background .15s,border-color .15s}
+.drop:hover{background:#f0f0ec;border-color:#aaa}
+.drop.drag{border-color:#555;background:#fff}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;border:1px solid #ddd;background:#fff;color:#1a1a1a;transition:background .12s,transform .1s}
+.btn:hover{background:#f0f0ec}
+.btn:active{transform:scale(.98)}
+.btnp{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.btnp:hover{background:#333}
+.result{background:#fafaf8;border-radius:12px;border:1px solid #e8e8e4;padding:1.25rem;display:none;margin-top:.5rem}
+.sgrid{display:flex;gap:10px;margin-bottom:1.25rem}
+.scard{flex:1;background:#fff;border-radius:8px;border:1px solid #e8e8e4;padding:.875rem 1rem}
+.slabel{font-size:12px;color:#888;margin-bottom:4px}
+.sval{font-size:22px;font-weight:600;color:#1a1a1a}
+.green{color:#0F6E56}
+.red{color:#993C1D}
+.mlist{display:flex;flex-direction:column;gap:4px;margin-bottom:1.25rem;max-height:360px;overflow-y:auto}
+.mitem{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;background:#fff;border:1px solid #e8e8e4;font-size:14px}
+.mitem.done{border-color:#9FE1CB}
+.badge{font-size:12px;padding:2px 10px;border-radius:20px;font-weight:500}
+.bdone{background:#E1F5EE;color:#0F6E56}
+.bmiss{background:#FAECE7;color:#993C1D}
+.out{background:#fff;border:1px solid #e8e8e4;border-radius:8px;padding:1rem;font-size:13px;line-height:1.8;white-space:pre-wrap;font-family:'Courier New',monospace;color:#1a1a1a;margin-bottom:10px;max-height:300px;overflow-y:auto}
+.divider{border:none;border-top:1px solid #e8e8e4;margin:1.25rem 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>블로그 1일 1포 체커</h1>
+<div class="section">
+  <div class="row">
+    <div><div class="label">챌린지 시작일</div><input type="date" id="startDate"></div>
+    <div>
+    <div class="label">체크 날짜</div>
+    <input type="date" id="checkDate">
+    <div class="hint" style="margin-top:6px;display:flex;align-items:center;gap:6px">
+      <input type="checkbox" id="allLines" style="width:auto;padding:0;border:none">
+      <label for="allLines" style="font-size:12px;color:#888;cursor:pointer">날짜 구분 없이 전체 파일 체크</label>
+    </div>
+  </div>
+    <div><div class="label">챌린지 이름</div><input type="text" id="cname" placeholder="블마 1일 1포"></div>
+  </div>
+</div>
+<div class="section">
+  <div class="label">참여자 명단 (줄바꿈으로 구분)</div>
+  <textarea id="members" rows="6" placeholder="데미안&#10;루틴줄리아&#10;글앤리치"></textarea>
+  <div class="hint">@ 없이 표시 이름만 입력. 카톡 @아이디는 자동 제거됩니다.</div>
+</div>
+<div class="section">
+  <div class="label">닉네임 별칭 매핑 (카톡닉네임 = 명단이름)</div>
+  <textarea id="aliases" rows="4" placeholder="이희란 (Hey Sally) = 샐리&#10;친절한우티처teacherwoo1004 = 친절한우티처&#10;눈누난나 리/ = 눈누난나 리&#10;유지윤 글쓰는 사람 = 유지윤작가&#10;한그루:D = 한그루&#10;친절한우티처teacherwoo1004 = 친절한우티처&#10;앤안나/채미정/심리학 = 앤안나&#10;읽고 걷는 최선화 = 읽고 쓰는 최선화&#10;일본 작가 에리노 = 일본작가 에리노&#10;이진아코치 = 이진아 코치&#10;즐거운호호씨 김인희 = 즐거운 호호씨 김인희"></textarea>
+  <div class="hint">카톡에서 쓰는 닉네임이 명단과 다를 때 여기에 입력. 카톡닉네임 = 명단이름 형식.</div>
+</div>
+<div class="section">
+  <div class="label">카카오톡 대화 내보내기 파일</div>
+  <div class="drop" id="drop" onclick="document.getElementById('fi').click()">
+    <div style="font-size:28px;margin-bottom:8px">📂</div>
+    <div>txt 파일을 여기에 드래그하거나 클릭해서 업로드</div>
+    <div class="hint" style="margin-top:6px">파일은 브라우저 안에서만 처리됩니다. 외부 전송 없음.</div>
+  </div>
+  <input type="file" id="fi" accept=".txt" style="display:none">
+  <div class="fname" id="fname"></div>
+  <div class="errmsg" id="ferr"></div>
+</div>
+<div style="display:flex;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap">
+  <button class="btn btnp" onclick="run()">체크 실행</button>
+  <button class="btn" onclick="exportSettings()">설정 내보내기</button>
+  <label class="btn" style="cursor:pointer">설정 불러오기<input type="file" id="importFi" accept=".json" style="display:none" onchange="importSettings(this)"></label>
+  <button class="btn" onclick="rst()">초기화</button>
+</div>
+<div class="result" id="result">
+  <div class="sgrid">
+    <div class="scard"><div class="slabel">전체 인원</div><div class="sval" id="sTotal">-</div></div>
+    <div class="scard"><div class="slabel">인증 완료</div><div class="sval green" id="sDone">-</div></div>
+    <div class="scard"><div class="slabel">미인증</div><div class="sval red" id="sMiss">-</div></div>
+    <div class="scard"><div class="slabel">체크 날짜</div><div class="sval" id="sDate" style="font-size:13px;padding-top:5px">-</div></div>
+  </div>
+  <div class="label" style="margin-bottom:8px">참여자 현황</div>
+  <div class="mlist" id="mlist"></div>
+  <hr class="divider">
+  <div class="label" style="margin-bottom:8px">카톡 붙여넣기용 메시지</div>
+  <div class="out" id="out"></div>
+  <div style="display:flex;justify-content:flex-end">
+    <button class="btn" id="cpBtn" onclick="cp()">복사하기</button>
+  </div>
+</div>
+</div>
+<script>
+var fc='';
+// 체크 날짜 기본값: 어제
+(function(){
+  var d=new Date();
+  d.setDate(d.getDate()-1);
+  var y=d.getFullYear();
+  var m=String(d.getMonth()+1).padStart(2,'0');
+  var day=String(d.getDate()).padStart(2,'0');
+  document.getElementById('checkDate').value=y+'-'+m+'-'+day;
+})();
+var drop=document.getElementById('drop');
+var fi=document.getElementById('fi');
+drop.addEventListener('dragover',function(e){e.preventDefault();drop.classList.add('drag')});
+drop.addEventListener('dragleave',function(){drop.classList.remove('drag')});
+drop.addEventListener('drop',function(e){
+  e.preventDefault();drop.classList.remove('drag');
+  if(e.dataTransfer.files[0])lf(e.dataTransfer.files[0]);
+});
+fi.addEventListener('change',function(){if(fi.files[0])lf(fi.files[0])});
+function lf(f){
+  document.getElementById('ferr').textContent='';
+  var r=new FileReader();
+  r.onload=function(e){fc=e.target.result;document.getElementById('fname').textContent='파일: '+f.name};
+  r.onerror=function(){document.getElementById('ferr').textContent='파일을 읽을 수 없습니다.'};
+  r.readAsText(f,'UTF-8');
+}
+
+// 링크 또는 블로그 출처 텍스트 → 인증
+function isCertified(s){
+  if(/https?:\/\/\S+/.test(s))return true;
+  if(/\|\s*(네이버\s*블로그|블로그)/.test(s))return true;
+  return false;
+}
+
+// @ 뒤 제거
+function dname(n){var i=n.indexOf('@');return i>=0?n.substring(0,i).trim():n.trim()}
+
+// 별칭 매핑 파싱: "카톡닉네임 = 명단이름" 형식
+function parseAliases(text){
+  var map={};
+  if(!text.trim())return map;
+  text.split('\n').forEach(function(line){
+    line=line.trim();
+    if(!line)return;
+    var idx=line.indexOf('=');
+    if(idx<0)return;
+    var kakao=line.substring(0,idx).trim();
+    var list=line.substring(idx+1).trim();
+    // 중복 제거: 이미 등록된 카톡 닉네임은 덮어쓰지 않음
+    if(kakao&&list&&!map[kakao])map[kakao]=list;
+  });
+  return map;
+}
+
+// 카톡 닉네임 → 명단 이름 변환
+// 1. 별칭 맵 정확 매칭
+// 2. 명단 이름이 카톡 닉네임에 포함되는지 부분 매칭
+// 3. @ 제거한 이름 반환
+function resolveN(nick, aliasMap, members){
+  var base=dname(nick);
+  if(aliasMap[base])return aliasMap[base];
+  if(aliasMap[nick])return aliasMap[nick];
+  for(var i=0;i<members.length;i++){
+    if(base.indexOf(members[i])>=0)return members[i];
+  }
+  return base;
+}
+
+var MSG_RE=/^\[(.+?)\]\s*\[.+?\d{1,2}:\d{2}\]\s*([\s\S]*)/;
+
+function run(){
+  var mraw=document.getElementById('members').value.trim();
+  var araw=document.getElementById('aliases').value.trim();
+  var sd=document.getElementById('startDate').value;
+  var cd=document.getElementById('checkDate').value;
+  var cn=document.getElementById('cname').value.trim()||'블마 1일 1포';
+  if(!mraw){alert('참여자 명단을 입력해주세요.');return}
+  if(!fc){alert('카카오톡 대화 파일을 업로드해주세요.');return}
+  if(!sd){alert('챌린지 시작일을 입력해주세요.');return}
+  if(!cd){alert('체크 날짜를 입력해주세요.');return}
+
+  // 중복 제거 명단
+  var seen={},members=[];
+  mraw.split('\n').forEach(function(l){var n=l.trim();if(n&&!seen[n]){seen[n]=true;members.push(n)}});
+
+  // 별칭 맵
+  var aliasMap=parseAliases(araw);
+
+  var sDate=new Date(sd),cDate=new Date(cd);
+  var dayNum=Math.floor((cDate-sDate)/86400000)+1;
+  var cy=cDate.getFullYear(),cm=cDate.getMonth()+1,cday=cDate.getDate();
+  var dlabel=cy+'년 '+cm+'월 '+cday+'일';
+
+  // 날짜 구간 추출
+  var useAllLines=document.getElementById('allLines').checked;
+  var lines=fc.split('\n'),inTarget=false,foundDate=false,tlines=[];
+  if(!useAllLines){
+    for(var i=0;i<lines.length;i++){
+      var l=lines[i];
+      // 카카오톡 날짜 헤더: "--- 2026년 5월 4일 월요일 ---" 형식만 인식
+      if(/[-─]{3,}/.test(l)&&l.indexOf('년')>=0&&l.indexOf('월')>=0&&l.indexOf('일')>=0){
+        var dm=l.match(/(\d{4})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})/);
+        if(dm){foundDate=true;inTarget=(+dm[1]===cy&&+dm[2]===cm&&+dm[3]===cday);continue}
+      }
+      if(inTarget)tlines.push(l);
+    }
+  }
+  var pl=(useAllLines||!foundDate)?lines:tlines;
+
+  // 메시지 블록 단위로 파싱 (멀티라인 대응)
+  var done={};
+  var curName=null,curLines=[];
+  function flush(){
+    if(!curName)return;
+    var fullText=curLines.join('\n');
+    if(isCertified(fullText)&&members.indexOf(curName)>=0)done[curName]=true;
+  }
+  for(var j=0;j<pl.length;j++){
+    var pm=MSG_RE.exec(pl[j]);
+    if(pm){
+      flush();
+      curName=resolveN(pm[1].trim(),aliasMap,members);
+      curLines=[pm[2].trim()];
+    } else {
+      if(curName!==null)curLines.push(pl[j]);
+    }
+  }
+  flush();
+
+  var doneCount=0;
+  members.forEach(function(m){if(done[m])doneCount++});
+  document.getElementById('sTotal').textContent=members.length;
+  document.getElementById('sDone').textContent=doneCount;
+  document.getElementById('sMiss').textContent=members.length-doneCount;
+  document.getElementById('sDate').textContent=dlabel;
+
+  var ml=document.getElementById('mlist');
+  ml.innerHTML='';
+  members.forEach(function(name){
+    var isDone=!!done[name];
+    var item=document.createElement('div');
+    item.className='mitem'+(isDone?' done':'');
+    var ns=document.createElement('span');ns.textContent=name;
+    var b=document.createElement('span');
+    b.className='badge '+(isDone?'bdone':'bmiss');
+    b.textContent=isDone?'인증 완료':'미인증';
+    item.appendChild(ns);item.appendChild(b);ml.appendChild(item);
+  });
+
+  var msg=cn+' '+dayNum+'일\n\n';
+  members.forEach(function(n){msg+=n+(done[n]?' ❤️':'')+'\n'});
+  msg+='\n@all '+members.length+'명 중에서 '+doneCount+'명 인증했습니다.';
+  document.getElementById('out').textContent=msg;
+  document.getElementById('result').style.display='block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+
+function cp(){
+  navigator.clipboard.writeText(document.getElementById('out').textContent).then(function(){
+    var b=document.getElementById('cpBtn');
+    b.textContent='복사됨!';
+    setTimeout(function(){b.textContent='복사하기'},1500);
+  });
+}
+
+function exportSettings(){
+  var data={
+    startDate:document.getElementById('startDate').value,
+    checkDate:document.getElementById('checkDate').value,
+    cname:document.getElementById('cname').value,
+    members:document.getElementById('members').value,
+    aliases:document.getElementById('aliases').value
+  };
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='checker-settings.json';
+  a.click();
+}
+
+function importSettings(input){
+  var f=input.files[0];
+  if(!f)return;
+  var r=new FileReader();
+  r.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      if(data.startDate)document.getElementById('startDate').value=data.startDate;
+      if(data.checkDate)document.getElementById('checkDate').value=data.checkDate;
+      if(data.cname)document.getElementById('cname').value=data.cname;
+      if(data.members)document.getElementById('members').value=data.members;
+      if(data.aliases)document.getElementById('aliases').value=data.aliases;
+    }catch(err){alert('설정 파일을 읽을 수 없습니다.');}
+    input.value='';
+  };
+  r.readAsText(f,'UTF-8');
+}
+
+function rst(){
+  fc='';
+  ['members','aliases','startDate','checkDate','cname'].forEach(function(id){document.getElementById(id).value=''});
+  document.getElementById('fname').textContent='';
+  document.getElementById('ferr').textContent='';
+  document.getElementById('result').style.display='none';
+  fi.value='';
+}
+
+</script>
+</body>
+</html>
