@@ -1,0 +1,22 @@
+{
+  "name": "블마 1일 1포 체커",
+  "short_name": "블마체커",
+  "description": "카카오톡 블로그 인증 체크 도구",
+  "start_url": "/blog-checker/",
+  "display": "standalone",
+  "background_color": "#f5f5f0",
+  "theme_color": "#1a1a1a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
