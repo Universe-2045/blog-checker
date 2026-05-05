@@ -46,6 +46,26 @@ textarea:focus,input:focus{outline:none;border-color:#999}
 <body>
 <div class="wrap">
 <h1>블로그 1일 1포 체커</h1>
+<div style="margin-bottom:1.5rem">
+  <button class="btn" onclick="toggleGuide()" id="guideBtn" style="font-size:13px;padding:6px 14px">사용법 보기 ▼</button>
+  <div id="guide" style="display:none;margin-top:12px;background:#fff;border:1px solid #e8e8e4;border-radius:12px;padding:1.25rem;font-size:14px;line-height:1.9">
+    <p style="font-weight:600;margin-bottom:10px">📋 사용 방법</p>
+    <ol style="padding-left:1.25rem;color:#444">
+      <li>카카오톡 블마방 → 대화 내보내기 (txt 파일 저장)</li>
+      <li>챌린지 시작일 입력</li>
+      <li>체크 날짜 입력 (기본값: 어제)</li>
+      <li>챌린지 이름 입력 (예: 블마 1일 1포)</li>
+      <li>참여자 명단 입력 (줄바꿈으로 구분, @ 없이 표시 이름만)</li>
+      <li>닉네임 별칭 매핑 입력 (카톡 닉네임과 명단 이름이 다른 경우)<br>
+        <span style="font-size:12px;color:#888">예: 이희란 (Hey Sally) = 샐리</span></li>
+      <li>카카오톡 대화 내보내기 파일 업로드</li>
+      <li>체크 실행 버튼 클릭</li>
+      <li>하단에 생성된 카톡 메시지 복사해서 붙여넣기</li>
+    </ol>
+    <p style="margin-top:12px;font-size:13px;color:#888">💡 설정 내보내기로 명단/별칭을 저장해두면 다음에 불러올 수 있어요.</p>
+    <p style="font-size:13px;color:#888">🔒 파일은 브라우저 안에서만 처리됩니다. 외부 서버로 전송되지 않아요.</p>
+  </div>
+</div>
 <div class="section">
   <div class="row">
     <div><div class="label">챌린지 시작일</div><input type="date" id="startDate"></div>
@@ -106,6 +126,12 @@ textarea:focus,input:focus{outline:none;border-color:#999}
 </div>
 <script>
 var fc='';
+function toggleGuide(){
+  var g=document.getElementById('guide');
+  var b=document.getElementById('guideBtn');
+  if(g.style.display==='none'){g.style.display='block';b.textContent='사용법 닫기 ▲';}
+  else{g.style.display='none';b.textContent='사용법 보기 ▼';}
+}
 // 체크 날짜 기본값: 어제
 (function(){
   var d=new Date();
